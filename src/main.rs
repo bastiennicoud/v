@@ -1,3 +1,7 @@
+use structopt::StructOpt;
+
+#[derive(StructOpt)]
+#[structopt(name = "Version manager", about = "Simple version switcher")]
 struct Cli {
     tool: String,
     version: String
@@ -5,8 +9,7 @@ struct Cli {
 
 fn main() {
 
-    let tool = std::env::args().nth(1).expect("no patern given");
-    let version = std::env::args().nth(2).expect("no patern given");
+    // Get the arguments from the command line
+    let args = Cli::from_args();
 
-    println!("Hello, world!");
 }
