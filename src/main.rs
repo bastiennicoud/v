@@ -1,5 +1,5 @@
 use structopt::StructOpt;
-use anyhow::{Context, Result};
+use anyhow::{Context, Result, anyhow};
 use std::process::Command;
 use std::str;
 
@@ -18,6 +18,11 @@ fn main() -> Result<()> {
 
     // List of supported binaries
     let bins = vec!["php", "node"];
+
+    // Check if the user entry is supported
+    if !bins.contains(&args.tool.as_str()) {
+        return Err(anyhow!("This tool is not supported !"));
+    }
 
     let mut tool_cli = Command::new(&args.tool);
     tool_cli.arg("--version");
