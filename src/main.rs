@@ -1,17 +1,16 @@
-mod structures;
-mod functions;
+use std::process::Command;
 
-use structures::{Cli, Formulae};
+use anyhow::{anyhow, Context, Result};
+use structopt::StructOpt;
+
 use functions::{
     is_binary_supported,
-    is_brew_available
+    is_brew_available,
 };
+use structures::{Cli, Formulae};
 
-use structopt::StructOpt;
-use anyhow::{Context, Result, anyhow};
-use std::process::Command;
-use lenient_semver;
-
+mod structures;
+mod functions;
 
 fn main() -> Result<()> {
 
@@ -67,62 +66,54 @@ fn main() -> Result<()> {
         return Err(anyhow!("No {} formulae installed on this system.", args.tool));
     }
 
-    println!("Available versions of {} : {:?}", args.tool, selected_binary_formulaes);
+    // println!("Available versions of {} : {:?}", args.tool, selected_binary_formulaes);
 
 
-    //print!("Test semver {:?}", lenient_semver::parse("8.0"));
-    //print!("Test semver {:?}", lenient_semver::parse("8.0.0"));
     // Check if the required version of the formulae is available
-    //let required_version = lenient_semver::parse(args.version.as_str())
-    //    .with_context(|| format!(
-    //        "Impossible to parse the provided version : {} Please check if this is a valid semver.",
-    //        args.version))?;
+    let required_version = lenient_semver::parse(args.version.as_str()).unwrap();
 
-    // for f in selected_binary_formulaes.iter() {
-    //     let formulae_version = lenient_semver::parse(f.versions.stable.as_str())
-    //         .with_context(|| "Impossible to parse the formulae wersion")?;
-    //
-    //     if required_version == formulae_version {
-    //         println!("Matching version {}", f.versions.stable);
-    //     } else {
-    //         print!("Not match {}", f.versions.stable);
-    //     }
-    // }
+    // Retrieve the formulae that the user want ton link
+    let mut required_formulae: Option<&Formulae> = None;
+    for f in selected_binary_formulaes.iter() {
+        let formulae_version = lenient_semver::parse(f.versions.stable.as_str()).unwrap();
 
-    // Check if any of the version formulae is linked
-    // let mut actually_linked_formulae: Option<&Formulae> = None;
-    // for formulae in selected_binary_formulaes.iter() {
-    //     if formulae.linked_keg.is_some() {
-    //         actually_linked_formulae = Some(formulae);
-    //     }
-    // }
+        if required_version.major == formulae_version.major && required_version.minor == formulae_version.minor {
+            required_formulae = Some(f);
+        }
+    }
 
-    // println!("Parsed json structure ==> {:?}", selected_binary_formulaes);
+    // Retrieve the actually linked formulae
+    let mut actually_linked_formulae: Option<&Formulae> = None;
+    for formulae in selected_binary_formulaes.iter() {
+        if formulae.linked_keg.is_some() {
+            actually_linked_formulae = Some(formulae);
+        }
+    }
 
-    // Check if the required formulae is present on the system
-    // Check if any of the version formulae is linked
-    // Check if the actually linked formulae is present
-    // Check if there is actually a formulae linked
-    // Unlink the current version of the tool
-    // Link the new formulae required version
+    if required_formulae.is_none() {
+        return Err(anyhow!("Required formulae version not found : {}@{}", args.tool, args.version));
+    }
 
+    // Link the required version
+    if actually_linked_formulae.is_none() {
+        // No version is actually linked... link the required version
+        println!("The formulae {} version {} will be linkd.", args.tool, args.version);
+    } else {
+        // If the required version is the version actually linked, do nothing
+        if actually_linked_formulae.unwrap().linked_keg == required_formulae.unwrap().linked_keg {
+            println!("The formulae version you vant to link is actually linked.")
+        } else {
+            // Normal case, unlink actually linked and link the new formulae
+            println!("Unlinking {} version {}, linking required {} version {}",
+                     actually_linked_formulae.unwrap().name,
+                     actually_linked_formulae.unwrap().versions.stable,
+                     args.tool,
+                     required_formulae.unwrap().versions.stable
+            )
+        }
+    }
 
-
-    // let mut tool_cli = Command::new(&args.tool);
-    // tool_cli.arg("--version");
-    // let out = tool_cli.output().with_context(|| format!("Unable to find the specified binary"))?;
-    //
-    // if out.status.success() {
-    //     println!("Command ok");
-    // }
-
-    // Display arguments on standard out
-    //println!("Arg 1 {}", args.tool);
-    //println!("Arg 1 {}", args.version);
-
-    //let str_out = str::from_utf8(&out.stdout).with_context(|| format!("Impossible to parse UTF-8 sequence"))?;
-
-    //println!("Arg 1 {}", str_out);
+    println!("Formulae correctly linked !");
 
     Ok(())
 }
