@@ -4,10 +4,12 @@ use anyhow::{anyhow, Context, Result};
 use structopt::StructOpt;
 
 use functions::{
+    homebrew_link,
     is_binary_supported,
     is_brew_available,
 };
 use structures::{Cli, Formulae};
+use crate::functions::homebrew_unlink;
 
 mod structures;
 mod functions;
@@ -96,20 +98,30 @@ fn main() -> Result<()> {
 
     // Link the required version
     if actually_linked_formulae.is_none() {
+
         // No version is actually linked... link the required version
         println!("The formulae {} version {} will be linkd.", args.tool, args.version);
+        homebrew_link(&required_formulae.unwrap().name)?;
+
     } else {
         // If the required version is the version actually linked, do nothing
         if actually_linked_formulae.unwrap().linked_keg == required_formulae.unwrap().linked_keg {
-            println!("The formulae version you vant to link is actually linked.")
+
+            println!("The formulae version you want to link is actually linked.")
+
         } else {
+
             // Normal case, unlink actually linked and link the new formulae
             println!("Unlinking {} version {}, linking required {} version {}",
                      actually_linked_formulae.unwrap().name,
                      actually_linked_formulae.unwrap().versions.stable,
                      args.tool,
                      required_formulae.unwrap().versions.stable
-            )
+            );
+
+            homebrew_unlink(&actually_linked_formulae.unwrap().name)?;
+            homebrew_link(&required_formulae.unwrap().name)?;
+
         }
     }
 
