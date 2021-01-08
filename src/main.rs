@@ -1,7 +1,6 @@
 use structopt::StructOpt;
 use anyhow::{Context, Result, anyhow};
 use std::process::Command;
-use std::str;
 
 // Struct to define required cli arguments
 #[derive(StructOpt)]
