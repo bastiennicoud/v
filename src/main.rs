@@ -2,7 +2,10 @@ mod structures;
 mod functions;
 
 use structures::{Cli, Formulae};
-use functions::{is_binary_supported};
+use functions::{
+    is_binary_supported,
+    is_brew_available
+};
 
 use structopt::StructOpt;
 use anyhow::{Context, Result, anyhow};
@@ -15,14 +18,17 @@ fn main() -> Result<()> {
     // Get the arguments from the command line
     let args = Cli::from_args();
 
+    is_brew_available().with_context(|| format!("Unable to find homebrew on the system"))?;
+
     is_binary_supported(&args.tool.as_str()).with_context(|| format!("Illegal binary"))?;
 
 
 
     // Prepare a brew command to check if the required version of the formulae is present
     let command_required_version = Command::new("brew")
-        .arg("list")
-        .arg(format!("{}@{}", args.tool, args.version))
+        .arg("info")
+        .arg("--json")
+        .arg("--installed")
         .output()
         .with_context(|| format!("Unable to find the brew binary."))?;
 

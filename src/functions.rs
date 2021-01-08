@@ -1,4 +1,16 @@
-use anyhow::{Result, anyhow};
+use anyhow::{Result, anyhow, Context};
+use std::process::Command;
+
+pub fn is_brew_available() -> Result<()> {
+    let command_brew = Command::new("brew")
+        .status()
+        .with_context(|| format!("Impossible to launch the brew binary on the system"))?;
+
+    if !command_brew.success() {
+        return Err(anyhow!("Brew found, but responded with an error code {:?}", command_brew.code()));
+    }
+    Ok(())
+}
 
 // Check if the binary is supported by the tool
 pub fn is_binary_supported(binary : &&str) -> Result<()> {

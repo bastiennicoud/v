@@ -13,5 +13,6 @@ $ cargo run -- php 8.0
 ## Underlying brew commands
 
 ```
-$ brew list php --versions
+# Get a json representation of all the installed formulaes
+$ brew info --json --installed
 ```
