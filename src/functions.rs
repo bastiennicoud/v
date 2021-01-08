@@ -3,11 +3,12 @@ use std::process::Command;
 
 pub fn is_brew_available() -> Result<()> {
     let command_brew = Command::new("brew")
-        .status()
+        .arg("--help")
+        .output()
         .with_context(|| format!("Impossible to launch the brew binary on the system"))?;
 
-    if !command_brew.success() {
-        return Err(anyhow!("Brew found, but responded with an error code {:?}", command_brew.code()));
+    if !command_brew.status.success() {
+        return Err(anyhow!("Brew found, but responded with an error code {:?}", command_brew.status));
     }
     Ok(())
 }

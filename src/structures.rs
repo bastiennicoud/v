@@ -14,5 +14,11 @@ pub struct Cli {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Formulae {
     pub name: String,
+    pub versions: Version,
     pub linked_keg: Option<String>
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Version {
+    pub stable: String
 }
