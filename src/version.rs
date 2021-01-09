@@ -10,7 +10,7 @@ pub fn is_versions_equivalent(required_version: &str, comparing_version: &str) -
     let required_version = lenient_semver::parse(required_version).unwrap();
     let comparing_version = lenient_semver::parse(comparing_version).unwrap();
 
-    return match version_parts {
+    match version_parts {
         // Check only major
         1 => required_version.major == comparing_version.major,
         // Check major and minor
@@ -29,5 +29,5 @@ pub fn is_versions_equivalent(required_version: &str, comparing_version: &str) -
             "Cannot compare correctly versions, unsupported version pattern {}",
             required_version
         ),
-    };
+    }
 }

@@ -7,7 +7,7 @@ pub fn is_brew_available() -> Result<()> {
     let command_brew = Command::new("brew")
         .arg("--help")
         .output()
-        .with_context(|| format!("Impossible to launch the brew binary on the system"))?;
+        .with_context(|| "Impossible to launch the brew binary on the system")?;
 
     if !command_brew.status.success() {
         return Err(anyhow!(
@@ -21,7 +21,7 @@ pub fn is_brew_available() -> Result<()> {
 // Check if the binary is supported by the tool
 pub fn is_binary_supported(binary: &&str) -> Result<()> {
     // List of supported binaries
-    let bins = vec!["php"];
+    let bins = vec!["php", "node"];
 
     // Check if the user entry is supported
     if !bins.contains(binary) {
@@ -34,7 +34,7 @@ pub fn is_binary_supported(binary: &&str) -> Result<()> {
 }
 
 // Execute homebrew link
-pub fn homebrew_link(formulae_name: &String) -> Result<()> {
+pub fn homebrew_link(formulae_name: &str) -> Result<()> {
     let command_brew = Command::new("brew")
         .arg("link")
         .arg(formulae_name)
@@ -53,7 +53,7 @@ pub fn homebrew_link(formulae_name: &String) -> Result<()> {
 }
 
 // Execute homebrew link
-pub fn homebrew_unlink(formulae_name: &String) -> Result<()> {
+pub fn homebrew_unlink(formulae_name: &str) -> Result<()> {
     let command_brew = Command::new("brew")
         .arg("unlink")
         .arg(formulae_name)

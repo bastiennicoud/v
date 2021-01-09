@@ -50,7 +50,7 @@ fn main() -> Result<()> {
     for f in json.iter() {
         // Get the name of the formulae without the version suffix
         let name =
-            f.name.split('@').nth(0).with_context(|| {
+            f.name.split('@').next().with_context(|| {
                 format!("Error while trying to get the formulae name : {:?}", f)
             })?;
 
