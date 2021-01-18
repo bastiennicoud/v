@@ -5,13 +5,13 @@ use structopt::StructOpt;
 
 use helpers::{
     brew::{homebrew_link, homebrew_unlink, is_brew_available},
+    compatibility::is_binary_supported,
     version::is_versions_equivalent,
-    compatibility::is_binary_supported
 };
-use structures::{Cli, Formulae};
+use models::{cli::Cli, formulae::Formulae};
 
 mod helpers;
-mod structures;
+mod models;
 
 fn main() -> Result<()> {
     // Get the arguments from the command line
@@ -72,7 +72,7 @@ fn main() -> Result<()> {
     // Retrieve the formulae that the user want ton link
     let mut required_formulae: Option<&Formulae> = None;
     for f in selected_binary_formulaes.iter() {
-        if is_versions_equivalent(args.version.as_str(), f.versions.stable.as_str()) {
+        if is_versions_equivalent(args.version.as_str(), f.version.stable.as_str()) {
             required_formulae = Some(f);
         }
     }
@@ -111,9 +111,9 @@ fn main() -> Result<()> {
             println!(
                 "Unlinking {} version {}, linking required {} version {}",
                 actually_linked_formulae.unwrap().name,
-                actually_linked_formulae.unwrap().versions.stable,
+                actually_linked_formulae.unwrap().version.stable,
                 args.tool,
-                required_formulae.unwrap().versions.stable
+                required_formulae.unwrap().version.stable
             );
 
             homebrew_unlink(&actually_linked_formulae.unwrap().name)?;
