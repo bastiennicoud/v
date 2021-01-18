@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Formulae {
     pub name: String,
-    pub version: Version, // formulae package version
+    pub version: Version,           // formulae package version
     pub linked_keg: Option<String>, // If linked, version linked
 }
 
