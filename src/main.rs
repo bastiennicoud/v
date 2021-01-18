@@ -3,13 +3,15 @@ use std::process::Command;
 use anyhow::{anyhow, Context, Result};
 use structopt::StructOpt;
 
-use functions::{homebrew_link, homebrew_unlink, is_binary_supported, is_brew_available};
+use helpers::{
+    brew::{homebrew_link, homebrew_unlink, is_brew_available},
+    version::is_versions_equivalent,
+    compatibility::is_binary_supported
+};
 use structures::{Cli, Formulae};
-use version::is_versions_equivalent;
 
-mod functions;
+mod helpers;
 mod structures;
-mod version;
 
 fn main() -> Result<()> {
     // Get the arguments from the command line
@@ -70,10 +72,7 @@ fn main() -> Result<()> {
     // Retrieve the formulae that the user want ton link
     let mut required_formulae: Option<&Formulae> = None;
     for f in selected_binary_formulaes.iter() {
-        if is_versions_equivalent(
-            args.version.as_str(),
-            f.versions.stable.as_str()
-        ) {
+        if is_versions_equivalent(args.version.as_str(), f.versions.stable.as_str()) {
             required_formulae = Some(f);
         }
     }
